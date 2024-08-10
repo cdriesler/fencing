@@ -9,6 +9,8 @@ from speckle_automate import (
     AutomationContext,
     execute_automate_function,
 )
+from pathlib import Path
+import httpx
 
 from flatten import flatten_base
 
@@ -78,7 +80,8 @@ def automate_function(
         automate_context.mark_run_success("No forbidden types found.")
 
     print(automate_context.automation_run_data.speckle_server_url)
-    automate_context.store_file_result("horse.png")
+    print(automate_context._speckle_token)
+    store_file_result(automate_context, "horse.png")
 
     # if the function generates file results, this is how it can be
     # attached to the Speckle project / model
@@ -94,6 +97,47 @@ def automate_function_without_inputs(automate_context: AutomationContext) -> Non
     """
     pass
 
+
+def store_file_result(self, ctx: AutomationContext, file_path: str) -> None:
+        """Save a file attached to the project of this automation."""
+        path_obj = (
+            Path(file_path).resolve() if isinstance(file_path, str) else file_path
+        )
+
+        class UploadResult(AutomateBase):
+            blob_id: str
+            file_name: str
+            upload_status: int
+
+        class BlobUploadResponse(AutomateBase):
+            upload_results: list[UploadResult]
+
+        if not path_obj.exists():
+            raise ValueError("The given file path doesn't exist")
+        files = {path_obj.name: open(str(path_obj), "rb")}
+
+        url = (
+            f"{ctx.automation_run_data.speckle_server_url}api/stream/"
+            f"{ctx.automation_run_data.project_id}/blob"
+        )
+        data = (
+            httpx.post(
+                url,
+                files=files,
+                headers={"authorization": f"Bearer {ctx._speckle_token}"},
+            )
+            .raise_for_status()
+            .json()
+        )
+
+        upload_response = BlobUploadResponse.model_validate(data)
+
+        if len(upload_response.upload_results) != 1:
+            raise ValueError("Expecting one upload result.")
+
+        ctx._automation_result.blobs.extend(
+            [upload_result.blob_id for upload_result in upload_response.upload_results]
+        )
 
 # make sure to call the function with the executor
 if __name__ == "__main__":
