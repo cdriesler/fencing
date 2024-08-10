@@ -98,7 +98,7 @@ def automate_function_without_inputs(automate_context: AutomationContext) -> Non
     pass
 
 
-def store_file_result(self, ctx: AutomationContext, file_path: str) -> None:
+def store_file_result(ctx: AutomationContext, file_path: str) -> None:
         """Save a file attached to the project of this automation."""
         path_obj = (
             Path(file_path).resolve() if isinstance(file_path, str) else file_path
