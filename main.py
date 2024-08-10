@@ -77,6 +77,7 @@ def automate_function(
     else:
         automate_context.mark_run_success("No forbidden types found.")
 
+    print(automate_context.automation_run_data.speckle_server_url)
     automate_context.store_file_result("horse.png")
 
     # if the function generates file results, this is how it can be
