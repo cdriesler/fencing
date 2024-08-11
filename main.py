@@ -8,6 +8,7 @@ from speckle_automate import (
     AutomateBase,
     AutomationContext,
     execute_automate_function,
+    ObjectResultLevel
 )
 from pathlib import Path
 import httpx
@@ -79,9 +80,19 @@ def automate_function(
     else:
         automate_context.mark_run_success("No forbidden types found.")
 
-    print(automate_context.automation_run_data.speckle_server_url)
-    print(automate_context._speckle_token)
-    store_file_result(automate_context, "horse.png")
+    ids = store_file_result(automate_context, "horse.png")
+    print(ids)
+    automate_context.attach_result_to_objects(
+        ObjectResultLevel.INFO,
+        "graphic",
+        "",
+        None,
+        {
+            "blobIds": ids
+        }
+    )
+
+    # raise Exception("ACK")
 
     # if the function generates file results, this is how it can be
     # attached to the Speckle project / model
@@ -138,6 +149,8 @@ def store_file_result(ctx: AutomationContext, file_path: str) -> None:
         ctx._automation_result.blobs.extend(
             [upload_result.blob_id for upload_result in upload_response.upload_results]
         )
+
+        return [upload_result.blob_id for upload_result in upload_response.upload_results]
 
 # make sure to call the function with the executor
 if __name__ == "__main__":
