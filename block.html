@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        function handleClick() {
+            window.document.getElementById("root").textContent = "Sent message!"
+            window.parent.postMessage({ message: "howdy", source: "speckle" })
+        }
+
+        window.addEventListener("message", (e) => {
+            window.document.getElementById("root").textContent = "Received message!"
+        })
+    </script>
+</head>
+
+<body>
+    <div>
+        <p id="root">No message...</p>
+        <button onclick="handleClick()">GO</button>
+    </div>
+</body>
+
+</html>

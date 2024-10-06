@@ -80,17 +80,17 @@ def automate_function(
     else:
         automate_context.mark_run_success("No forbidden types found.")
 
-    ids = store_file_result(automate_context, "horse.png")
+    ids = store_file_result(automate_context, "block.html")
     print(ids)
-    automate_context.attach_result_to_objects(
-        ObjectResultLevel.INFO,
-        "graphic",
-        "",
-        None,
-        {
-            "blobIds": ids
-        }
-    )
+    # automate_context.attach_result_to_objects(
+    #     ObjectResultLevel.INFO,
+    #     "graphic",
+    #     "",
+    #     None,
+    #     {
+    #         "blobIds": ids
+    #     }
+    # )
 
     # raise Exception("ACK")
 
